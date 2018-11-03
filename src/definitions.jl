@@ -3,15 +3,23 @@
 # elipsis in print_range
 
 
-import Base: eachindex, iterate, Pair,
+import Base: Pair,
     pairs, getindex, length, getproperty, map,
-    get, keys
+    get, keys, values, keytype, eltype, ==
 
 include("unroll1.jl")
 
-export AbstractPairedArray, Trajectory, trajectory
 
+"""
+    AbstractPairedArray
 
+Simple data structure pairing two arrays, with the first array holding the `keys`
+and the second the corresponding `values`.
+
+For example an array of locations with an array of
+corresponding measurements or a vector of times with
+a vector of locations.
+"""
 abstract type  AbstractPairedArray
 end
 
@@ -24,6 +32,12 @@ struct PairedArray{T,S} <: AbstractPairedArray
 end
 =#
 
+"""
+    Trajectory{S,T} <: AbstractPairedArray
+
+Pairs a linearly ordered (abstract) vector of `keys` (typically times) with
+a vector of `values` (typically locations).
+"""
 struct Trajectory{S,T} <: AbstractPairedArray
     t::S
     x::T
@@ -32,10 +46,9 @@ end
 keys(X::Trajectory) = X.t
 values(X::Trajectory) = X.x
 
-struct Linear
-end
-struct Left
-end
+keytype(X::Trajectory) = eltype(X.t)
+eltype(X::Trajectory) = eltype(X.x)
+
 
 function _find(r::AbstractRange, x)
     n = round(Integer, (x - first(r)) / step(r)) + 1
@@ -46,14 +59,9 @@ function _find(r::AbstractRange, x)
     end
 end
 
-
-function find(X::Trajectory, key, default)
-    X.x[find(X.t, key)]
-end
-
 function get(X::Trajectory{<:AbstractVector}, key)
     i = searchsorted(keys(X), key)
-    isempty(i) && error("key not found and no interpolation rule")
+    isempty(i) && error("key not found")
     first(i) != last(i) && error("key not unique")
     return values(X)[first(i)]
 end
@@ -74,55 +82,25 @@ function trajectory(itr)
 end
 
 
+# Iteration and indexing spared out, see issue #1
+length(X) = length(values(X)) # seems useful enough
 #=
+
 iterate(X::Trajectory) = X.t, (X.x, nothing)
 iterate(X::Trajectory, state) = state
 length(X) = 2
+
+eachindex(X::Trajectory) = eachindex(X.x)
+getindex(X::Trajectory{<:AbstractVector}, i) = getindex(X.x, i)
 =#
 
 Pair(X::Trajectory) = (X.t, X.x)
 
 pairs(X::Trajectory) = (t => x for (t, x) in zip(X.t, X.x))
 
-#eachindex(X::Trajectory) = eachindex(X.x)
-#getindex(X::Trajectory{<:AbstractVector}, i) = getindex(X.x, i)
-
-indextype(::Trajectory) = eltype(X.t)
-
-valtype(::Trajectory) = eltype(X.x)
-
-function getproperty(X::Trajectory, s::Symbol)
-    if s == :tt
-        warn("fieldname `tt` changed to `t` ")
-        s = :t
-    elseif s == :yy
-        warn("fieldname `yy` changed to `x` ")
-        s = :x
-    end
-    (s == :t || s == :x) && return getfield(X, s)
-    error("getproperty: type Trajectory has no field $s")
-end
-#=
-struct Splice
-    X
-    Y
-end
-
-function iterate(Splice)
-    X, Y = Splice.X, Splice.Y
-    ϕ = iterate(pairs(X))
-    ψ = iterate(pairs(X))
-end
+X::Trajectory == Y::Trajectory = X.t == Y.t && X.x == Y.x
 
 
-    while true
-        s1, s2 = iterate(X.t)
-        iterate(Y.t)
-
-        Trajectory(X.t, map(X.y + Y.y))
-    end
-end
-=#
 
 function map(f, X::Trajectory, Y::Trajectory)
     if X.t === Y.t || X.t == Y.t
@@ -130,23 +108,4 @@ function map(f, X::Trajectory, Y::Trajectory)
     else
         error("map undefined for Trajectory on different times")
     end
-end
-struct RelVector{T}
-    y::T
-end
-
-
-
-import Base: size, length, getindex
-const VView{T} = SubArray{T,1,Matrix{T},Tuple{Base.Slice{Base.OneTo{Int64}},Int64},true}
-
-struct ViewVector{T} <: AbstractVector{VView{T}}
-    x::Matrix{T}
-end
-size(X::ViewVector) = (length(X),)
-length(X::ViewVector) = size(X.x, 2)
-#getindex(X::ViewVector{T}, i) where {T} = view(X.x, :, i)::VView{T}
-function getindex(X::ViewVector{T}, i) where {T}
-    @boundscheck checkbounds(X.x, i)
-    @inbounds VView{T}(X.x, (Base.Slice(Base.OneTo(3)), i), i, 1)
 end
