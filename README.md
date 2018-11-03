@@ -6,17 +6,13 @@ vector of spatial points `x`, which are though as locations `x[i]` of an object 
 
 A key decision which has to be made for a time series object,
 is whether iteration is used to iterate values, pairs or is leveraged for destruction.
-In order to allow pairs `(t, x)` to serve as ad hoc trajectory, here the following
-decision was made:
 
-Iteration is de-structuring. For `X = Trajectory(t, x)`,
 
+To iterate values `xᵢ`, pairs `(tᵢ, xᵢ)` or components `(t, x)`, use `values`, `pairs` or `Pair`
 ```julia
-t, x = X
-```
-
-To iterate values `xᵢ` or pairs `(tᵢ, xᵢ)`, use `values` or `pair`
-```julia
+tᵢ in keys(X)
 xᵢ in values(X)
 (tᵢ, xᵢ) in pairs(X)
+
+t, x = Pair(X)
 ```
