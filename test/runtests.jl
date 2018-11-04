@@ -40,3 +40,6 @@ end
 @test_throws BoundsError interpolate(Left(), X, -1/3)
 
 @test piecewise(Trajectory([1,2,3], [1,2])) == ([1, 2, 2, 3], [1, 1, 2, 2])
+
+@test searchsorted(sort([1,missing, NaN, missing]), NaN) == 2:2
+@test searchsorted(sort([1,missing, NaN, missing]), missing) == 3:4

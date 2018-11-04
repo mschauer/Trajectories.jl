@@ -98,14 +98,22 @@ Pair(X::Trajectory) = (X.t, X.x)
 
 pairs(X::Trajectory) = (t => x for (t, x) in zip(X.t, X.x))
 
-X::Trajectory == Y::Trajectory = X.t == Y.t && X.x == Y.x
+# sic! keys compare with `isequal`
+X::Trajectory == Y::Trajectory = isequal(X.t, Y.t) && X.x == Y.x
 
-
+"""
+    issynchron(X, Y) = isequal(keys(X), keys(Y))
+"""
+issynchron(X, Y) = isequal(keys(X), keys(Y))
+checksynchron(X, Y) = issynchron(X, Y) || error("checksynchron: asynchronous trajectories")
 
 function map(f, X::Trajectory, Y::Trajectory)
-    if X.t === Y.t || X.t == Y.t
-        Trajectory(X.t, map(f, X.x, Y.x))
-    else
-        error("map undefined for Trajectory on different times")
-    end
+    checksynchron(X, Y)
+    Trajectory(X.t, map(f, X.x, Y.x))
+end
+
+function map!(f, X::Trajectory, Y::Trajectory)
+    checksynchron(X, Y)
+    map!(f, X.x, Y.x)
+    X
 end

@@ -1,6 +1,6 @@
 module Trajectories
 
-export AbstractPairedArray, Trajectory, trajectory
+export AbstractPairedArray, Trajectory, trajectory, issynchron
 export interpolate, Linear, Left, Right
 export piecewise
 

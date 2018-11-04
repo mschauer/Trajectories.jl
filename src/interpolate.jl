@@ -5,6 +5,16 @@ struct Left
 end
 struct Right
 end
+
+"""
+    interpolate(method, X::Trajectory, s)
+
+Interpolate trajectory `X` using `method in [Linear(), Left(), ...]`
+at time `s`.
+"""
+function interpolate
+end
+
 function interpolate(::Linear, X::Trajectory, s)
     i = searchsorted(keys(X), s)
     t, x = Pair(X)
