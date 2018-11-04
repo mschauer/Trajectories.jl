@@ -5,7 +5,8 @@ vector of spatial points `x`, which are though as locations `x[i]` of an object 
 `t[i]`.
 
 A key decision which has to be made for a time series object,
-is whether iteration is used to iterate values, pairs or is leveraged for destruction.
+is whether iteration is used to iterate values, pairs or is leveraged for destruction. See issue #1. At the moment, 
+all iteration and destructuring is explicit.
 
 
 To iterate values `xᵢ`, pairs `(tᵢ, xᵢ)` or components `(t, x)`, use `values`, `pairs` or `Pair`
