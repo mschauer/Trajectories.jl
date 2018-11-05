@@ -17,3 +17,5 @@ xᵢ in values(X)
 
 t, x = Pair(X)
 ```
+
+Trajectories support `Tables.jl` with `columns` being a named tuple `(t = X.t, x = X.x)`.
