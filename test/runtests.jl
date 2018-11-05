@@ -15,7 +15,7 @@ X = trajectory(t, x)
 @test eltype(X) === eltype(x)
 @test eltype(X) === eltype(x)
 
-@test Pair(X) === (t, x)
+@test Pair(X) === Pair(t, x)
 @test [pair for pair in pairs(X)] == map(t->Pair(t...), collect(zip(t, x)))
 
 @test trajectory(zip(t, x)) == X

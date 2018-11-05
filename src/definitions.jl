@@ -94,7 +94,7 @@ eachindex(X::Trajectory) = eachindex(X.x)
 getindex(X::Trajectory{<:AbstractVector}, i) = getindex(X.x, i)
 =#
 
-Pair(X::Trajectory) = (X.t, X.x)
+Pair(X::Trajectory) = Pair(X.t, X.x)
 
 pairs(X::Trajectory) = (t => x for (t, x) in zip(X.t, X.x))
 
