@@ -1,4 +1,5 @@
 using Trajectories
+using Tables
 @static if VERSION < v"0.7.0-DEV.2005"
     using Base.Test
 else
@@ -43,3 +44,5 @@ end
 
 @test searchsorted(sort([1,missing, NaN, missing]), NaN) == 2:2
 @test searchsorted(sort([1,missing, NaN, missing]), missing) == 3:4
+
+@test Tables.schema(Tables.columns(trajectory(1:10, rand(10)))) == Tables.Schema{(:t, :x),Tuple{Int,Float64}}()

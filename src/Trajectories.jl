@@ -7,4 +7,5 @@ export piecewise
 include("definitions.jl")
 include("interpolate.jl")
 include("piecewise.jl")
+include("tables.jl")
 end # module
