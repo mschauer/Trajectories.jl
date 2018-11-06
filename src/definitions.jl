@@ -93,7 +93,7 @@ end
 
 
 # Iteration and indexing spared out, see issue #1
-length(X) = length(values(X)) # seems useful enough
+length(X::Trajectory) = length(values(X)) # seems useful enough
 #=
 
 iterate(X::Trajectory) = X.t, (X.x, nothing)
