@@ -4,8 +4,9 @@
 
 
 import Base: Pair,
-    pairs, getindex, length, getproperty, map,
-    get, keys, values, keytype, eltype, ==
+    pairs, getindex, length, getproperty, map, map!,
+    get, keys, values, keytype, eltype, ==,
+    vcat, push!, copy
 
 include("unroll1.jl")
 
@@ -49,6 +50,15 @@ values(X::Trajectory) = X.x
 keytype(X::Trajectory) = eltype(X.t)
 eltype(X::Trajectory) = eltype(X.x)
 
+vcat(Xs::Trajectory...) = Trajectory(vcat(keys.(Xs)...), vcat(values.(Xs)...))
+
+
+function push!(X::Trajectory, (t,x)::Pair)
+    push!(keys(X), t)
+    push!(values(X), x)
+    X
+end
+copy(X::Trajectory) = map(copy, X)
 
 function _find(r::AbstractRange, x)
     n = round(Integer, (x - first(r)) / step(r)) + 1
@@ -107,12 +117,28 @@ X::Trajectory == Y::Trajectory = isequal(X.t, Y.t) && X.x == Y.x
 issynchron(X, Y) = isequal(keys(X), keys(Y))
 checksynchron(X, Y) = issynchron(X, Y) || error("checksynchron: asynchronous trajectories")
 
-function map(f, X::Trajectory, Y::Trajectory)
+function mapeach!((f,g)::Pair, X::Trajectory)
+    map!(f, X.t)
+    map!(g, X.x)
+    X
+end
+function mapeach((f,g)::Pair, X::Trajectory)
+    Trajectory(map(f,X.t), map(g, X.x))
+end
+
+function map(f, X::Trajectory)
+    Trajectory(f(X.t), f(X.x))
+end
+function map((f,g)::Pair, X::Trajectory)
+    Trajectory(f(X.t), g(X.x))
+end
+
+function mapvalues(f, X::Trajectory, Y::Trajectory)
     checksynchron(X, Y)
     Trajectory(X.t, map(f, X.x, Y.x))
 end
 
-function map!(f, X::Trajectory, Y::Trajectory)
+function mapvalues!(f, X::Trajectory, Y::Trajectory)
     checksynchron(X, Y)
     map!(f, X.x, Y.x)
     X

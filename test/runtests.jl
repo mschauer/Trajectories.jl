@@ -46,3 +46,12 @@ end
 @test searchsorted(sort([1,missing, NaN, missing]), missing) == 3:4
 
 @test Tables.schema(Tables.columns(trajectory(1:10, rand(10)))) == Tables.Schema{(:t, :x),Tuple{Int,Float64}}()
+
+Y = map(collect, X)
+push!(Y, 12=>0.0)
+@test keys(Y) == [t; 12]
+@test values(Y) == [x; 0.0]
+
+Y = copy(X)
+Y = vcat(Y, Y)
+@test collect(pairs(Y))[end÷2+1:end] == collect(pairs(X))
