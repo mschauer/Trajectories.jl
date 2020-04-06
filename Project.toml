@@ -1,7 +1,7 @@
 name = "Trajectories"
 uuid = "2c80a279-213e-54d7-a557-e9a14725db56"
 repo = "https://github.com/mschauer/Trajectories.jl.git"
-version = "0.2.1"
+version = "0.2.2"
 
 [deps]
 RecipesBase = "3cdcf5f2-1ef4-517c-9805-6587b60abb01"
